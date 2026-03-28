@@ -219,9 +219,49 @@ function ToolPartView({
   return null;
 }
 
+// ── Agent URL (one Durable Object instance per team id) ─────────────────
+
+const AGENT_URL_SEGMENT = "hackathon-mentor";
+
+function parseTeamIdFromPath(): string | null {
+  const p = window.location.pathname.replace(/\/$/, "") || "/";
+  const m = p.match(/^\/agents\/([^/]+)\/([^/]+)$/);
+  if (!m) return null;
+  if (m[1].toLowerCase() !== AGENT_URL_SEGMENT) return null;
+  try {
+    return decodeURIComponent(m[2]);
+  } catch {
+    return null;
+  }
+}
+
+function ensureTeamIdInUrl(): string {
+  const existing = parseTeamIdFromPath();
+  if (existing) {
+    const p = window.location.pathname.replace(/\/$/, "") || "/";
+    const m = p.match(/^\/agents\/([^/]+)\/([^/]+)$/);
+    if (m && m[1] !== AGENT_URL_SEGMENT) {
+      window.history.replaceState(
+        null,
+        "",
+        `/agents/${AGENT_URL_SEGMENT}/${encodeURIComponent(existing)}`
+      );
+    }
+    return existing;
+  }
+  const id = crypto.randomUUID();
+  window.history.replaceState(
+    null,
+    "",
+    `/agents/${AGENT_URL_SEGMENT}/${encodeURIComponent(id)}`
+  );
+  return id;
+}
+
 // ── Main chat ─────────────────────────────────────────────────────────
 
 function Chat() {
+  const [teamId] = useState(() => ensureTeamIdInUrl());
   const [connected, setConnected] = useState(false);
   const [input, setInput] = useState("");
   const [showDebug, setShowDebug] = useState(false);
@@ -245,6 +285,7 @@ function Chat() {
 
   const agent = useAgent<HackathonMentor>({
     agent: "HackathonMentor",
+    name: teamId,
     onOpen: useCallback(() => setConnected(true), []),
     onClose: useCallback(() => setConnected(false), []),
     onError: useCallback(
@@ -454,7 +495,7 @@ function Chat() {
             </h1>
             <Badge variant="secondary">
               <ChatCircleDotsIcon size={12} weight="bold" className="mr-1" />
-              Hackathon Mentor
+              24hr Coach
             </Badge>
           </div>
           <div className="flex items-center gap-3">
@@ -660,14 +701,14 @@ function Chat() {
           {messages.length === 0 && (
             <Empty
               icon={<ChatCircleDotsIcon size={32} />}
-              title="Start a conversation"
+              title="Describe your project idea to get started"
               contents={
                 <div className="flex flex-wrap justify-center gap-2">
                   {[
-                    "What's the weather in Paris?",
-                    "What timezone am I in?",
-                    "Calculate 5000 * 3",
-                    "Remind me in 5 minutes to take a break"
+                    "We want to build a real-time poll app for classrooms",
+                    "Evaluate our idea: AI-powered recipe generator",
+                    "What stack should we use for a 2-person team?",
+                    "Generate our hackathon checklist"
                   ].map((prompt) => (
                     <Button
                       key={prompt}
