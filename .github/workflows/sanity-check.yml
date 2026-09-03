@@ -34,6 +34,5 @@ jobs:
           version: 11.24.0
           runtime: node@24
           cache: true
-          require-lockfile: true
 
       - run: pnpm check
