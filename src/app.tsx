@@ -354,15 +354,31 @@ function Chat() {
   const serverEntries = Object.entries(mcpState.servers);
   const mcpToolCount = mcpState.tools.length;
 
+  const handleChatError = useCallback(
+    (error: Error) => {
+      console.error("Chat generation failed:", error);
+      toasts.add({
+        variant: "error",
+        title: "Mentor could not respond",
+        description: "Please retry in a moment.",
+        timeout: 0
+      });
+    },
+    [toasts]
+  );
+
   const {
     messages,
     sendMessage,
     clearHistory,
     addToolApprovalResponse,
     stop,
-    status
+    status,
+    error,
+    clearError
   } = useAgentChat({
     agent,
+    onError: handleChatError,
     onToolCall: async (event) => {
       if (
         "addToolOutput" in event &&
@@ -853,6 +869,37 @@ function Chat() {
               </div>
             );
           })}
+
+          {error && (
+            <Surface
+              role="alert"
+              className="rounded-xl ring ring-kumo-danger px-4 py-3"
+            >
+              <div className="flex items-start gap-3">
+                <XCircleIcon
+                  size={18}
+                  className="mt-0.5 shrink-0 text-kumo-danger"
+                />
+                <div className="min-w-0 flex-1">
+                  <Text size="sm" bold>
+                    Mentor could not respond
+                  </Text>
+                  <Text size="xs" variant="secondary">
+                    Please retry in a moment. Your message and chat history are
+                    still here.
+                  </Text>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  shape="square"
+                  aria-label="Dismiss chat error"
+                  icon={<XIcon size={14} />}
+                  onClick={clearError}
+                />
+              </div>
+            </Surface>
+          )}
 
           <div ref={messagesEndRef} />
         </div>

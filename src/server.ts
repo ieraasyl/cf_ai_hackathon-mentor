@@ -12,6 +12,10 @@ import { buildSystemPrompt } from "./prompt";
 import { createTools } from "./tools";
 import type { TeamState } from "./types";
 
+const WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it";
+const CHAT_ERROR_MESSAGE =
+  "The mentor could not generate a response. Please retry in a moment.";
+
 /**
  * The AI SDK's downloadAssets step runs `new URL(data)` on every file
  * part's string data. Data URIs parse as valid URLs, so it tries to
@@ -77,7 +81,7 @@ export class HackathonMentor extends AIChatAgent<Env, TeamState> {
     }
     const workersai = createWorkersAI({ binding: this.env.AI });
 
-    const model = workersai("@cf/moonshotai/kimi-k2.5", {
+    const model = workersai(WORKERS_AI_MODEL, {
       sessionAffinity: this.sessionAffinity
     });
 
@@ -96,10 +100,15 @@ export class HackathonMentor extends AIChatAgent<Env, TeamState> {
       }),
       tools,
       stopWhen: stepCountIs(5),
-      abortSignal: options?.abortSignal
+      abortSignal: options?.abortSignal,
+      onError: ({ error }) => {
+        console.error("Workers AI generation failed:", error);
+      }
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      onError: () => CHAT_ERROR_MESSAGE
+    });
   }
 }
 

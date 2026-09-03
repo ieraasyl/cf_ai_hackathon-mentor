@@ -1,6 +1,6 @@
 # hackathon-mentor
 
-AI mentor for 24-hour hackathon teams on the [Cloudflare Agents SDK](https://developers.cloudflare.com/agents/). One URL per team: persistent state (idea, stack, checklist, history) with no accounts. **Stack:** Workers AI (`@cf/moonshotai/kimi-k2.5`), Vite, React 19, [Kumo](https://developers.cloudflare.com/kumo/), [`@cloudflare/ai-chat`](https://developers.cloudflare.com/workers-ai/configuration/ai-chat/).
+AI mentor for 24-hour hackathon teams on the [Cloudflare Agents SDK](https://developers.cloudflare.com/agents/). One URL per team: persistent state (idea, stack, checklist, history) with no accounts. **Stack:** Workers AI (`@cf/google/gemma-4-26b-a4b-it`), Vite, React 19, [Kumo](https://developers.cloudflare.com/kumo/), [`@cloudflare/ai-chat`](https://developers.cloudflare.com/workers-ai/configuration/ai-chat/).
 
 ## Live demo
 
