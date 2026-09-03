@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -20,11 +24,16 @@ jobs:
           ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
-      - uses: actions/setup-node@v3
+      - name: Set up pnpm and Node.js
+        uses: pnpm/setup@v2
+        with:
+          version: 11.24.0
+          runtime: node@24
+          cache: true
+          require-lockfile: true
 
-      - run: npm install
-      - run: npm run check
+      - run: pnpm check
